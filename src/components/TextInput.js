@@ -45,10 +45,11 @@ type Props = React.ElementConfig<typeof NativeTextInput> & {|
    * Mode of the TextInput.
    * - `flat` - flat input with an underline.
    * - `outlined` - input with an outline.
+   * - `minimal` - flat input with no background color, horizontal padding.
    *
    * In `outlined` mode, the background color of the label is derived from `colors.background` in theme or the `backgroundColor` style.
    */
-  mode?: 'flat' | 'outlined',
+  mode?: 'flat' | 'outlined' | 'minimal',
   /**
    * If true, user won't be able to interact with the component.
    */
@@ -472,9 +473,8 @@ class TextInput extends React.Component<Props, State> {
           translateX: this.state.labeled.interpolate({
             inputRange: [0, 1],
             outputRange: [
-              (I18nManager.isRTL ? 1 : -1) *
-                (1 - MINIMIZED_LABEL_FONT_SIZE / MAXIMIZED_LABEL_FONT_SIZE) *
-                (this.state.labelLayout.width / 2),
+              -(1 - MINIMIZED_LABEL_FONT_SIZE / MAXIMIZED_LABEL_FONT_SIZE) *
+                (this.state.labelLayout.width / (mode === 'minimal' ? 1.5 : 2)),
               0,
             ],
           }),
@@ -536,8 +536,8 @@ class TextInput extends React.Component<Props, State> {
           </AnimatedText>
         ) : null}
 
-        {mode === 'flat' ? (
-          // When mode === 'flat', render an underline
+        {['flat', 'minimal'].includes(mode) ? (
+          // When mode is 'flat' or 'minimal', render an underline
           <Animated.View
             style={[
               styles.underline,
@@ -583,9 +583,7 @@ class TextInput extends React.Component<Props, State> {
               }
               style={[
                 styles.placeholder,
-                mode === 'outlined'
-                  ? styles.placeholderOutlined
-                  : styles.placeholderFlat,
+                styles[`placeholder${mode.charAt(0).toUpperCase()}${mode.slice(1)}`],
                 labelStyle,
                 {
                   color: activeColor,
@@ -602,9 +600,7 @@ class TextInput extends React.Component<Props, State> {
             <AnimatedText
               style={[
                 styles.placeholder,
-                mode === 'outlined'
-                  ? styles.placeholderOutlined
-                  : styles.placeholderFlat,
+                styles[`placeholder${mode.charAt(0).toUpperCase()}${mode.slice(1)}`],
                 labelStyle,
                 {
                   color: placeholderColor,
@@ -639,6 +635,7 @@ class TextInput extends React.Component<Props, State> {
               : this.props.label
                 ? styles.inputFlatWithLabel
                 : styles.inputFlatWithoutLabel,
+            mode === 'minimal' ? styles.inputMinimal : {},
             {
               color: inputTextColor,
               fontFamily,
@@ -667,6 +664,10 @@ const styles = StyleSheet.create({
   },
   placeholderOutlined: {
     top: 25,
+  },
+  placeholderMinimal: {
+    top: 19,
+    paddingHorizontal: 0,
   },
   underline: {
     position: 'absolute',
@@ -702,6 +703,10 @@ const styles = StyleSheet.create({
     paddingBottom: 16,
     minHeight: 64,
   },
+  inputMinimal: {
+    paddingHorizontal: 0,
+    backgroundColor: 'rgba(0,0,0,0)',
+  },
   inputFlatWithLabel: {
     paddingTop: 24,
     paddingBottom: 6,
@@ -710,3 +715,4 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
 });
+ 
