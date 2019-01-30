@@ -5,7 +5,7 @@ const fs = require('fs');
 const types = require('babel-types');
 const babylon = require('babylon');
 
-const output = path.join(__dirname, '../dist/mappings.json');
+const output = path.join(__dirname, '../mappings.json');
 const source = fs.readFileSync(require.resolve('..'), 'utf8');
 const ast = babylon.parse(source, {
   sourceType: 'module',
